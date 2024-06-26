@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="mataheader :: headfragment">
+</head>
+<body>
+
+	<!-- Main Wrapper -->
+	<div class="main-wrapper">
+		<div th:replace="matatopmenu :: topmenufragment"></div>
+		<div th:replace="mataleftmenu :: leftmenu"></div>
+
+		<!-- Page Wrapper -->
+		<div class="page-wrapper">
+
+			<!-- Page Content -->
+			<div class="content container-fluid">
+
+				<!-- Page Header -->
+				<div class="page-header">
+					<div class="row align-items-center">
+						<div class="col">
+							<h3 class="page-heaer">
+								<i class="las la-truck"> <b><span th:text="${title}"></span></b></i>
+							</h3>
+							<br>
+							<ul class="breadcrumb">
+								<li class="breadcrumb-item">Vehicle</li>
+								<li class="breadcrumb-item active"><span th:text="${title}"></span></li>
+							</ul>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="card">
+							<div class="card-body">
+								<form action="#" th:action="@{/vehicle/add}" th:object="${vehicle}" method="POST">
+									
+									<input type="hidden" th:field="*{id}">
+									<input type="hidden" th:value="${title}" name="title">
+									
+									<table border="0" cellpadding="10" class="col-md-12">
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Vehicle Regn. No.<font color="red">*</font></b></label> 
+													<input type="text" th:field="*{vehicleRegnNo}" placeholder="Enter Vehicle Regn. No." class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Vehicle Class</b></label> 
+													<input type="text" th:field="*{vehicleClass}" placeholder="Enter Vehicle Class" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Chasis Number</b></label> 
+													<input type="text" th:field="*{chasisNumber}" placeholder="Enter Chasis Number" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Engine Number</b></label> 
+													<input type="text" th:field="*{engineNumber}" placeholder="Enter Engine Number" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Maker & Description</b></label> 
+													<input type="text" th:field="*{makerAndDescription}" placeholder="Enter Maker & Description" class="form-control"  readonly>
+												</div>
+											</td>
+											
+										</tr>
+										
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Insurance Upto</b></label> 
+													<input type="text" th:field="*{insuranceUptoStr}" placeholder="Enter Insurance Upto" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Tax Upto</b></label> 
+													<input type="text" th:field="*{taxUptoStr}" placeholder="Enter Tax Upto" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Fitness Upto</b></label> 
+													<input type="text" th:field="*{fitnessUpto}" placeholder="Enter Fitness Upto" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Mfg MOYY</b></label> 
+													<input type="text" th:field="*{mfgMOYY}" placeholder="Enter MSIC MFG MOYY" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Owner Name</b></label> 
+													<input type="text" th:field="*{ownerName}" placeholder="Enter Owner Name" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Permanent Addredd</b></label> 
+													<input type="text" th:field="*{permanentAddress}" placeholder="Enter Permanent Address" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Current Address</b></label> 
+													<input type="text" th:field="*{currentAddress}" placeholder="Enter Current Address" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+									</table>
+									
+									<div class="text-right">
+										<button type="submit" class="btn btn-primary">Submit</button>
+									    <a class="btn btn-danger" th:href="@{/vehicle}">Cancel</a>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="matafooter :: footer"></div>
+	<script src="/assets/js/app.js"></script> 
+</body>
+</html>

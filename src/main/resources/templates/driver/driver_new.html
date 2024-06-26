@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="mataheader :: headfragment">
+</head>
+<body>
+
+	<!-- Main Wrapper -->
+	<div class="main-wrapper">
+		<div th:replace="matatopmenu :: topmenufragment"></div>
+		<div th:replace="mataleftmenu :: leftmenu"></div>
+
+		<!-- Page Wrapper -->
+		<div class="page-wrapper">
+
+			<!-- Page Content -->
+			<div class="content container-fluid">
+
+				<!-- Page Header -->
+				<div class="page-header">
+					<div class="row align-items-center">
+						<div class="col">
+							<h3 class="page-heaer">
+								<i class="las la-user-check"> <b><span th:text="${title}"></span></b></i>
+							</h3>
+							<br>
+							<ul class="breadcrumb">
+								<li class="breadcrumb-item">Driver</li>
+								<li class="breadcrumb-item active"><span th:text="${title}"></span></li>
+							</ul>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-7">
+						<div class="card">
+							<div class="card-body">
+								<form th:action="@{/driver/add}" th:object="${driver}" method="POST">
+									
+									<input type="hidden" th:field="*{id}">
+									<input type="hidden" th:value="${title}" name="title">
+									<input type="hidden" th:field="*{dobStr}">
+									
+									<table border="0" cellpadding="10" class="col-md-12">
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>DL No<font color="red">*</font></b></label> 
+													<input type="text" th:field="*{dlNo}" placeholder="Enter DL No" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>DL Issue Date</b></label> 
+													<input type="text" th:field="*{dlIssueDate}" placeholder="Enter DL Issue Date" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Issuing Authority</b></label> 
+													<input type="text" th:field="*{issuingAuthority}" placeholder="Enter Issuing Authority" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>DL Valid Till</b></label> 
+													<input type="text" th:field="*{dlValidTillStr}" placeholder="Enter DL Valid Till" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Name Of Holder</b></label> 
+													<input type="text" th:field="*{nameOfHolder}" placeholder="Enter Name Of Holder" class="form-control"  readonly>
+												</div>
+											</td>
+											
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Permitted Class</b></label> 
+													<input type="text" th:field="*{permittedClass}" placeholder="Enter Permitted Class" class="form-control"  readonly>
+												</div>
+											</td>
+											
+										</tr>
+										
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>MSIC No.</b></label> 
+													<input type="text" th:field="*{msicNo}" placeholder="Enter MSIC No" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>MSIC Valid Till</b></label> 
+													<input type="text" th:field="*{msicValidTillStr}" placeholder="Enter MSIC Valid Till" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>MSIC Issued by</b></label> 
+													<input type="text" th:field="*{msicIssuedBy}" placeholder="Enter MSIC Issued By" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Permanent Address</b></label> 
+													<input type="text" th:field="*{permanentAddress}" placeholder="Enter Permanent Address" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td colspan="2">
+												<div class="form-group">
+													<label><b>Current Address</b></label> 
+													<input type="text" th:field="*{currentAddress}" placeholder="Enter Current Address" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+									</table>
+									
+									<div class="text-right">
+										<button type="submit" class="btn btn-primary">Submit</button>
+									    <a class="btn btn-danger" th:href="@{/driver}">Cancel</a>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="matafooter :: footer"></div>
+	<script src="/assets/js/app.js"></script> 
+</body>
+</html>

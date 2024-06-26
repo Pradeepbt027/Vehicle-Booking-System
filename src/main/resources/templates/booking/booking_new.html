@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<style>
+	 
+
+</style>
+
+<head>
+ 	<link th:rel="stylesheet" href="/assets/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css"/>
+ 
+ 	<link th:rel="stylesheet" href="/assets/tempusdominus-bootstrap-4/tempusdominus-bootstrap-4.min.css"/>
+ 
+    <link th:rel="stylesheet" href="/webjars/font-awesome/5.11.2/css/all.css"/>
+ 
+    <link rel="shortcut icon" type="image/x-icon" href="/assets/img/mata_logo.png">
+		
+	<!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="/assets/css/font-awesome.min.css">
+		
+	<!-- Lineawesome CSS -->
+    <link rel="stylesheet" href="/assets/css/line-awesome.min.css">
+		
+	<!-- Chart CSS -->
+	<link rel="stylesheet" href="/assets/plugins/morris/morris.css">
+		
+	<!-- Main CSS -->
+    <link rel="stylesheet" href="/assets/css/style.css">
+		
+	<!-- Select2 CSS -->
+	<link rel="stylesheet" href="/assets/css/select2.min.css">
+
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/line-awesome.css">
+    
+     <style>
+		.slots {
+		    display: flex;
+		    flex-wrap: wrap;
+		    gap: 1px;
+		    margin-top: 5px;
+		}
+		
+		.slot {
+		    padding: 10px;
+		    border: 2px solid #ddd;
+		    border-radius: 4px;
+		    cursor: pointer;
+		    width: 80px;
+		    margin: 5px;
+		    text-align: center;
+		}
+		
+		.slot.available {
+		    border-color: #28a745;
+		}
+		
+		.slot.booked {
+		    border-color: #dc3545;
+		    background-color: #dc3545;
+		    color: #fff;
+		    cursor: not-allowed;
+		}
+    </style>
+
+</head>
+<body>
+
+	<!-- Main Wrapper -->
+	<div class="main-wrapper">
+		<div th:replace="matatopmenu :: topmenufragment"></div>
+		<div th:replace="mataleftmenu :: leftmenu"></div>
+
+		<!-- Page Wrapper -->
+		<div class="page-wrapper">
+
+			<!-- Page Content -->
+			<div class="content container-fluid">
+
+				<!-- Page Header -->
+				<div class="page-header">
+					<div class="row align-items-center">
+						<div class="col">
+							<h3 class="page-heaer">
+								<i class="las la-landmark"> <b><span th:text="${title}"></span></b></i>
+							</h3>
+							<br>
+							<ul class="breadcrumb">
+								<li class="breadcrumb-item">Booking</li>
+								<li class="breadcrumb-item active"><span th:text="${title}"></span></li>
+							</ul>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-7">
+						<div class="card">
+							<div class="card-body">
+								<form th:action="@{/booking/add}" th:object="${booking}" method="POST">
+									
+									<input type="hidden" th:field="*{id}">
+									<input type="hidden" th:value="${title}" name="title">
+									<div class="row">
+    									<div class="col-sm-12">
+											<div class="form-group">
+												<label class="col-sm-3"><b>Trip Type</b></label>
+												<div class="form-check form-check-inline col-lg-2">
+													<input class="form-check-input" id="trip_type_pick_up" type="radio" th:field="*{tripType}" value="Pick Up">
+													<label class="form-check-label" for="trip_type_pick_up">Pick Up</label>
+												</div>
+												<div class="form-check form-check-inline col-lg-2">
+													<input class="form-check-input" id="trip_type_drop" type="radio" th:field="*{tripType}" value="Drop">
+													<label class="form-check-label" for="trip_type_drop">Drop</label>
+												</div>
+												<div class="form-check form-check-inline col-lg-2">
+													<input class="form-check-input" id="trip_type_pickup_drop" type="radio" th:field="*{tripType}"  value="Drop & Pick Up">
+													<label class="form-check-label" for="trip_type_pickup_drop">Drop & Pick Up</label>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div class="booking-details">
+									</div>
+									
+									<div class="form-group">
+										<label><b>Select Pick Up Slot</b></label>
+										<div id="pick-up-slot" class="slots"></div>
+									</div>
+									<div class="form-group">
+										<label><b>Select Drop Slot</b></label>
+										<div id="drop-slot" class="slots"></div>
+									</div>
+									
+									
+									<div class="text-right">
+										<a class="btn btn-info get-slot-data-by-date">Get Slot Data</a>
+										<button type="submit" class="btn btn-primary">Submit</button>
+									    <a class="btn btn-danger" th:href="@{/booking}">Cancel</a>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="matafooter :: footer"></div>
+	<script src="/assets/js/app.js"></script>
+	
+	<script>
+		$(document).ready(function(){
+			
+			var title = "[[${title}]]";
+			var pickUpVehicleNo ="[[${booking.pickUpVehicleNo}]]";
+			var dropVehicleNo ="[[${booking.dropVehicleNo}]]";
+			var pickUpContainer ="[[${booking.pickUpContainerNo}]]";
+			var dropContainer ="[[${booking.dropContainerNo}]]";
+			var pickUpDriver ="[[${booking.pickUpDlNo}]]";
+			var dropDriver ="[[${booking.dropDlNo}]]";
+			var pickUpDate ="[[${booking.pickUpBookingDateStr}]]";
+			var dropDate ="[[${booking.dropBookingDateStr}]]";
+			
+			var pickUpSlotsContainer = document.getElementById('pick-up-slot');
+			var dropSlotsContainer = document.getElementById('drop-slot');
+			var pickUpDataList = [];
+			var dropDataList = [];
+			$(".get-slot-data-by-date").click(function () {
+			
+				var tripType = document.querySelector('input[name="tripType"]:checked').value;
+				var pickUpDate = null;
+				var dropDate = null;
+				
+				if("Pick Up" == tripType){
+					pickUpDate = document.getElementById("pickup-date-choose").value;
+				}
+				else if("Drop" == tripType){
+					dropDate = document.getElementById("drop-date-choose").value;
+				}
+				else{
+					pickUpDate = document.getElementById("pickup-date-choose").value;
+					dropDate = document.getElementById("drop-date-choose").value;
+				}
+				
+				dropSlotsContainer.innerHTML = '';
+				pickUpSlotsContainer.innerHTML = '';
+				
+				var data = {
+					"pickUpDate":pickUpDate,
+					"dropDate":dropDate
+				}
+				$.ajax({
+			        url: '/api/get/booking-slots',
+			        data:data,
+			        type: 'GET',
+			       	success: function (result) {
+						   
+						   pickUpDataList = result.pickUpSlotData;
+						   dropDataList = result.dropSlotData;
+						   
+						   setPickUpData(pickUpDataList)
+						   setDropData(dropDataList)
+			       	}
+			    })
+			
+			})
+			
+			function setPickUpData(slotData){
+				slotData.forEach (slot => {
+					const slotElement = document.createElement('span');
+					slotElement.classList.add('slot');
+					slotElement.textContent = slot.time;
+					slotElement.classList.add(slot.count<10 ? 'available' : 'booked');
+					
+					if(slot.count < 10){
+						slotElement.addEventListener('click', () => bookPickUpSlot(slot));
+					}
+					
+					pickUpSlotsContainer.appendChild(slotElement);
+				})
+			}
+
+			function setDropData(slotData){
+				slotData.forEach (slot => {
+					const slotElement = document.createElement('span');
+					slotElement.classList.add('slot');
+					slotElement.textContent = slot.time;
+					slotElement.classList.add(slot.count<10 ? 'available' : 'booked');
+					
+					if(slot.count < 10){
+						slotElement.addEventListener('click', () => bookDropSlot(slot));
+					}
+					
+					dropSlotsContainer.appendChild(slotElement);
+				})
+			}
+			
+			// Generate slots
+			
+			// Book slot function
+			function bookPickUpSlot(slot) {
+				
+			    if (!slot.count>10) return;
+			    
+			    //slot.count = 10;
+			    updatePickUpSlots(slot);
+			}
+			function bookDropSlot(slot) {
+				
+			    if (!slot.count>10) return;
+			    //slot.count = 10;
+			    updateDropSlots(slot);
+			}
+			
+			// Update slots display
+			function updatePickUpSlots(selectedSlot) {
+			    pickUpSlotsContainer.innerHTML = '';
+			    pickUpDataList.forEach(slot => {
+					var slotElement = document.createElement('input');
+					if(selectedSlot.time == slot.time){
+						slotElement.classList.add('slot');
+					    //slotElement.classList.add(slot.count <10 ? 'available' : 'booked');
+					    slotElement.classList.add('booked');
+					    slotElement.textContent = slot.time;
+					    slotElement.value = slot.time;
+					    slotElement.name = "pickUpReportingTimeStr";
+					}else{
+						slotElement = document.createElement('span');
+						slotElement.classList.add('slot');
+					    slotElement.classList.add(slot.count <10 ? 'available' : 'booked');
+					    slotElement.textContent = slot.time;
+					}
+				    
+				    if (slot.count <10) {
+				        slotElement.addEventListener('click', () => bookPickUpSlot(slot));
+				    }
+					
+					pickUpSlotsContainer.appendChild(slotElement);
+				    	
+			    });
+			}
+			
+			function updateDropSlots(selectedSlot) {
+			    dropSlotsContainer.innerHTML = '';
+			    dropDataList.forEach(slot => {
+					var slotElement = document.createElement('input');
+					if(selectedSlot.time == slot.time){
+						console.log(slotElement)
+						slotElement.classList.add('slot');
+					    //slotElement.classList.add(slot.count <10 ? 'available' : 'booked');
+					    slotElement.classList.add('booked');
+					    slotElement.textContent = slot.time;
+					    slotElement.value = slot.time;
+					    slotElement.name = "dropReportingTimeStr";
+					}else{
+						slotElement = document.createElement('span');
+						slotElement.classList.add('slot');
+					    slotElement.classList.add(slot.count <10 ? 'available' : 'booked');
+					    slotElement.textContent = slot.time;
+					}
+				    
+				    if (slot.count <10) {
+				        slotElement.addEventListener('click', () => bookDropSlot(slot));
+				    }
+					
+					dropSlotsContainer.appendChild(slotElement);
+				    	
+			    });
+			}
+			
+			//edit booking details
+			$(function(){
+				var tripType = document.querySelector('input[name="tripType"]:checked');
+				if("Edit Booking" == title){
+					appendBookingData(tripType.value);
+				}
+			})
+			
+			//tripType 
+			$(".form-check-input").click(function () {
+				
+				var tripType = this.value;
+				appendBookingData(tripType);
+			})
+			 
+			function appendBookingData(tripType){
+				var bookingDetails = '<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label class="col-form-label"><b>Pick-Up Vehicle</b></label>'+
+						'<input id="pickup-vehicle" class="form-control" type="text" name="pickUpVehicleNo" placeholder="Enter Vehicle No." value="'+pickUpVehicleNo+'">'+
+					'</div></div>'+
+					'<div class="col-sm-6"><div class="form-group autocomplete">'+	
+						'<label class="col-form-label"><b>Drop Vehicle</b></label>'+
+						'<input id="drop-vehicle" class="form-control" type="text" name="dropVehicleNo" placeholder="Enter Vehicle No." value="'+dropVehicleNo+'">'+
+					'</div></div></div>'+
+						
+					'<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Pick-Up Containers</b></label>'+ 
+						'<input id="pick-up-container" type="text" name="pickUpContainerNo" placeholder="Enter Pick-Up Container No." class="form-control" value="'+pickUpContainer+'">'+
+					'</div></div>'+
+							
+					'<div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Drop Containers</b></label>'+ 
+						'<input id="drop-container" type="text" name="dropContainerNo" placeholder="Enter Drop Container No." class="form-control" value="'+dropContainer+'">'+
+					'</div></div></div>'+
+						
+					'<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Pick-Up Driver</b></label>'+ 
+						'<input id="pickup-driver-no" type="text" name="pickUpDlNo" placeholder="Enter Pick Up DL No." class="form-control" value="'+pickUpDriver+'">'+
+					'</div></div>'+
+							
+					'<div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Drop Driver</b></label>'+ 
+						'<input id="drop-driver-no" type="text" name="dropDlNo" placeholder="Enter Drop DL No." class="form-control" value="'+dropDriver+'">'+
+					'</div></div></div>'+
+					
+					'<div class="row"><div class="col-sm-6"><div class="form-group">'+
+						'<label><b>Pick-Up Date</b></label>'+ 
+						'<input id="pickup-date-choose" type="date" name="pickUpBookingDateStr" class="form-control" value="'+pickUpDate+'">'+
+					'</div></div>'+
+							
+					'<div class="col-sm-6"><div class="form-group">'+
+						'<label><b>Drop Date</b></label>'+ 
+						'<input id="drop-date-choose" type="date" name="dropBookingDateStr" class="form-control" value="'+dropDate+'">'+
+					'</div></div></div>';
+				
+				if("Pick Up" == tripType){
+					bookingDetails = '<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+							'<label class="col-form-label"><b>Pick-Up Vehicle</b></label>'+
+							'<input id="pickup-vehicle" class="form-control" type="text" name="pickUpVehicleNo" placeholder="Enter Vehicle No." value="'+pickUpVehicleNo+'">'+
+					'</div></div></div>'+
+						
+					'<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Pick-Up Containers</b></label>'+ 
+						'<input id="pick-up-container" type="text" name="pickUpContainerNo" placeholder="Enter Pick-Up Container No." class="form-control" value="'+pickUpContainer+'">'+
+					'</div></div></div>'+
+					
+					'<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Pick-Up Driver</b></label>'+ 
+						'<input id="pickup-driver-no" type="text" name="pickUpDlNo" placeholder="Enter Pick Up DL No." class="form-control" value="'+pickUpDriver+'">'+
+					'</div></div></div>'+
+						
+					'<div class="row"><div class="col-sm-6"><div class="form-group">'+
+						'<label><b>Pick-Up Date</b></label>'+ 
+						'<input id="pickup-date-choose" type="date" name="pickUpBookingDateStr" class="form-control" value="'+pickUpDate+'">'+
+					'</div></div></div>';
+					
+				}else if("Drop" == tripType){
+					bookingDetails = '<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label class="col-form-label"><b>Drop Vehicle</b></label>'+
+						'<input id="drop-vehicle" class="form-control" type="text" name="dropVehicleNo" placeholder="Enter Vehicle No." value="'+dropVehicleNo+'">'+
+					'</div></div></div>'+
+						
+					'<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Drop Containers</b></label>'+ 
+						'<input id="drop-container" type="text" name="dropContainerNo" placeholder="Enter Drop Container No." class="form-control" value="'+dropContainer+'">'+
+					'</div></div></div>'+
+						
+					'<div class="row"><div class="col-sm-6"><div class="form-group autocomplete">'+
+						'<label><b>Drop Driver</b></label>'+ 
+						'<input id="drop-driver-no" type="text" name="dropDlNo" placeholder="Enter Drop DL No." class="form-control" value="'+dropDriver+'">'+
+					'</div></div></div>'+
+					
+					'<div class="row"><div class="col-sm-6"><div class="form-group">'+
+						'<label><b>Drop Date</b></label>'+ 
+						'<input id="drop-date-choose" type="date" name="dropBookingDateStr" class="form-control" value="'+dropDate+'">'+
+					'</div></div></div>';
+				}
+				$(".booking-details").html("").append(bookingDetails);
+				dropSlotsContainer.innerHTML = '';
+				pickUpSlotsContainer.innerHTML = '';
+				
+				//vehicle ajax call
+				$(function(){
+				    $.ajax({
+				        url: '/api/get/all-vehicles',
+				        type: 'GET',
+				       	success: function (result) {
+							if("Pick Up" == tripType)
+								vehicleAutocomplete(document.getElementById("pickup-vehicle"), result);
+							else if("Drop" == tripType)
+								vehicleAutocomplete(document.getElementById("drop-vehicle"), result);
+							else{
+								vehicleAutocomplete(document.getElementById("pickup-vehicle"), result);
+							  	vehicleAutocomplete(document.getElementById("drop-vehicle"), result);
+							}
+				       	}
+				    })
+				 })
+				 
+				 //container ajax call
+				 $(function(){
+				    $.ajax({
+				        url: '/api/get/all-container',
+				        type: 'GET',
+				       	success: function (result) {
+							if("Pick Up" == tripType)
+								containerAutocomplete(document.getElementById("pick-up-container"), result);
+							else if("Drop" == tripType)
+							  	containerAutocomplete(document.getElementById("drop-container"), result);
+							else{
+								containerAutocomplete(document.getElementById("pick-up-container"), result);
+							  	containerAutocomplete(document.getElementById("drop-container"), result);
+							}
+							  
+				       	}
+				    })
+				})
+				
+				//driver ajax call
+				$(function(){
+				    $.ajax({
+				        url: '/api/get/all-driver',
+				        type: 'GET',
+				       	success: function (result) {
+							if("Pick Up" == tripType)
+								driverAutocomplete(document.getElementById("pickup-driver-no"), result);
+							else if("Drop" == tripType)
+								driverAutocomplete(document.getElementById("drop-driver-no"), result);
+							else{
+								driverAutocomplete(document.getElementById("pickup-driver-no"), result);
+							  	driverAutocomplete(document.getElementById("drop-driver-no"), result);
+							}
+				       	}
+				    })
+				 })
+			}
+			
+			//vehicle autocomplete
+			function vehicleAutocomplete(inp, arr) {
+				
+	    	  	/*the autocomplete function takes two arguments,
+	    	  	the text field element and an array of possible autocompleted values:*/
+	    	  	var currentFocus;
+	    	  	/*execute a function when someone writes in the text field:*/
+	    	  	inp.addEventListener("input", function(e) {
+	    	      	var a, b, c, d, i, val = this.value;
+	    	      	/*close any already open lists of autocompleted values*/
+	    	      	closeAllLists();
+	    	      	if (!val) { return false;}
+	    	      	currentFocus = -1;
+	    	      	/*create a DIV element that will contain the items (values):*/
+	    	      	a = document.createElement("DIV");
+	    	      	a.setAttribute("id", this.id + "autocomplete-list");
+	    	      	a.setAttribute("class", "autocomplete-items");
+	    	      
+	    	      	c = document.createElement("DIV");
+	    	      	c.innerHTML +="<span>Regn. No | </span><span>Chasis No | </span><span>Owner Name | </span>"+
+	    	      		"<span>Ins Upto | </span><span>Tax Up</span>";
+	    	      	/*append the DIV element as a child of the autocomplete container:*/
+	    	      	//a.innerHTML +=c;
+	    	      	this.parentNode.appendChild(a);
+	    	      	//a.appendChild(c);
+	    	      	/*for each item in the array...*/
+	    	      	for (i = 0; i < arr.length; i++) {
+	    	        	/*check if the item starts with the same letters as the text field value:*/
+	    	        	if (arr[i].value.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+	    	          		/*create a DIV element for each matching element:*/
+	    	          		b = document.createElement("DIV");
+	    	          		/*make the matching letters bold:*/
+	    	          		b.innerHTML = "<span><strong>" + arr[i].value.substr(0, val.length) + "</strong>";
+	    	          		b.innerHTML += arr[i].value.substr(val.length)+" | </span><span>"+arr[i].chasisNumber+" | </span><span>"+arr[i].ownerName+" | </span>"+
+	    	          			"<span>"+arr[i].insuranceUpto+" | </span><span>"+arr[i].taxUpto+"</span>";
+	    	          		/*insert a input field that will hold the current array item's value:*/
+	    	          		b.innerHTML += "<input type='hidden' value='" + arr[i].value + "'>";
+	    	          		/*execute a function when someone clicks on the item value (DIV element):*/
+	    	          		b.addEventListener("click", function(e) {
+	    	              		/*insert the value for the autocomplete text field:*/
+	    	              		inp.value = this.getElementsByTagName("input")[0].value;
+	    	              		/*close the list of autocompleted values,
+	    	              		(or any other open lists of autocompleted values:*/
+	    	              		closeAllLists();
+	    	          		});
+	    	          		a.appendChild(b);
+	    	        	}
+	    	      	}
+	    	  });
+	    	  
+	    	  /*execute a function presses a key on the keyboard:*/
+	    	  inp.addEventListener("keydown", function(e) {
+				  var x = document.getElementById(this.id + "autocomplete-list");
+	    	      if (x) x = x.getElementsByTagName("div");
+	    	      if (e.keyCode == 40) {
+	    	      		/*If the arrow DOWN key is pressed,
+	    	        	increase the currentFocus variable:*/
+	    	        	currentFocus++;
+	    	        	/*and and make the current item more visible:*/
+	    	        	addActive(x);
+	    	      } else if (e.keyCode == 38) { //up
+	    	        /*If the arrow UP key is pressed,
+	    	        decrease the currentFocus variable:*/
+	    	        currentFocus--;
+	    	        /*and and make the current item more visible:*/
+	    	        addActive(x);
+	    	      } else if (e.keyCode == 13) {
+	    	        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+	    	        e.preventDefault();
+	    	        if (currentFocus > -1) {
+	    	          /*and simulate a click on the "active" item:*/
+	    	          if (x) x[currentFocus].click();
+	    	        }
+	    	      }
+	    	  });
+	    	  
+	    	  function addActive(x) {
+	    	    /*a function to classify an item as "active":*/
+	    	    if (!x) return false;
+	    	    /*start by removing the "active" class on all items:*/
+	    	    removeActive(x);
+	    	    if (currentFocus >= x.length) currentFocus = 0;
+	    	    if (currentFocus < 0) currentFocus = (x.length - 1);
+	    	    /*add class "autocomplete-active":*/
+	    	    x[currentFocus].classList.add("autocomplete-active");
+	    	  }
+	    	  function removeActive(x) {
+	    	    /*a function to remove the "active" class from all autocomplete items:*/
+	    	    for (var i = 0; i < x.length; i++) {
+	    	      x[i].classList.remove("autocomplete-active");
+	    	    }
+	    	  }
+	    	  function closeAllLists(elmnt) {
+	    	    /*close all autocomplete lists in the document,
+	    	    except the one passed as an argument:*/
+	    	    var x = document.getElementsByClassName("autocomplete-items");
+	    	    for (var i = 0; i < x.length; i++) {
+	    	      if (elmnt != x[i] && elmnt != inp) {
+	    	        x[i].parentNode.removeChild(x[i]);
+	    	      }
+	    	    }
+	    	  }
+	    	  /*execute a function when someone clicks in the document:*/
+	    	  document.addEventListener("click", function (e) {
+	    	      closeAllLists(e.target);
+	    	  });
+	    	}
+	    	
+			//container autocomplete
+			function containerAutocomplete(inp, arr) {
+	    	  /*the autocomplete function takes two arguments,
+	    	  the text field element and an array of possible autocompleted values:*/
+	    	  var currentFocus;
+	    	  /*execute a function when someone writes in the text field:*/
+	    	  inp.addEventListener("input", function(e) {
+	    	      var a, b, c, d, i, val = this.value;
+	    	      /*close any already open lists of autocompleted values*/
+	    	      closeAllLists();
+	    	      if (!val) { return false;}
+	    	      currentFocus = -1;
+	    	      /*create a DIV element that will contain the items (values):*/
+	    	      a = document.createElement("DIV");
+	    	      a.setAttribute("id", this.id + "autocomplete-list");
+	    	      a.setAttribute("class", "autocomplete-items");
+	    	       
+	    	      c = document.createElement("DIV");
+	    	      c.innerHTML +="<span>Regn. No | </span><span>Chasis No | </span><span>Owner Name | </span>"+
+	    	      		"<span>Ins Upto | </span><span>Tax Up</span>";
+	    	      /*append the DIV element as a child of the autocomplete container:*/
+	    	      //a.innerHTML +=c;
+	    	      this.parentNode.appendChild(a);
+	    	      //a.appendChild(c);
+	    	      /*for each item in the array...*/
+	    	      for (i = 0; i < arr.length; i++) {
+	    	        /*check if the item starts with the same letters as the text field value:*/
+	    	        if (arr[i].containerNo.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+						
+	    	          /*create a DIV element for each matching element:*/
+	    	          b = document.createElement("DIV");
+	    	          /*make the matching letters bold:*/
+	    	          b.innerHTML = "<span><strong>" + arr[i].containerNo.substr(0, val.length) + "</strong>";
+	    	          b.innerHTML += arr[i].containerNo.substr(val.length)+" | </span><span>"+arr[i].size+" | </span><span>"+arr[i].sealNo+" | </span>"+
+	    	          			"<span>"+arr[i].weight+" | </span><span>"+arr[i].voyageNo+"</span>";
+	    	          /*insert a input field that will hold the current array item's value:*/
+	    	          b.innerHTML += "<input type='hidden' value='" + arr[i].containerNo + "'>";
+	    	          /*execute a function when someone clicks on the item value (DIV element):*/
+	    	          b.addEventListener("click", function(e) {
+	    	              /*insert the value for the autocomplete text field:*/
+	    	              inp.value = this.getElementsByTagName("input")[0].value;
+	    	              /*close the list of autocompleted values,
+	    	              (or any other open lists of autocompleted values:*/
+	    	              closeAllLists();
+	    	          });
+	    	          
+	    	          a.appendChild(b);
+	    	        }
+	    	      }
+	    	  });
+	    	  
+	    	  
+	    	  /*execute a function presses a key on the keyboard:*/
+	    	  inp.addEventListener("keydown", function(e) {
+	    	      var x = document.getElementById(this.id + "autocomplete-list");
+	    	      if (x) x = x.getElementsByTagName("div");
+	    	      if (e.keyCode == 40) {
+	    	        /*If the arrow DOWN key is pressed,
+	    	        increase the currentFocus variable:*/
+	    	        currentFocus++;
+	    	        /*and and make the current item more visible:*/
+	    	        addActive(x);
+	    	      } else if (e.keyCode == 38) { //up
+	    	        /*If the arrow UP key is pressed,
+	    	        decrease the currentFocus variable:*/
+	    	        currentFocus--;
+	    	        /*and and make the current item more visible:*/
+	    	        addActive(x);
+	    	      } else if (e.keyCode == 13) {
+	    	        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+	    	        e.preventDefault();
+	    	        if (currentFocus > -1) {
+	    	          /*and simulate a click on the "active" item:*/
+	    	          if (x) x[currentFocus].click();
+	    	        }
+	    	      }
+	    	  });
+	    	  
+	    	  function addActive(x) {
+	    	    /*a function to classify an item as "active":*/
+	    	    if (!x) return false;
+	    	    /*start by removing the "active" class on all items:*/
+	    	    removeActive(x);
+	    	    if (currentFocus >= x.length) currentFocus = 0;
+	    	    if (currentFocus < 0) currentFocus = (x.length - 1);
+	    	    /*add class "autocomplete-active":*/
+	    	    x[currentFocus].classList.add("autocomplete-active");
+	    	  }
+	    	  function removeActive(x) {
+	    	    /*a function to remove the "active" class from all autocomplete items:*/
+	    	    for (var i = 0; i < x.length; i++) {
+	    	      x[i].classList.remove("autocomplete-active");
+	    	    }
+	    	  }
+	    	  function closeAllLists(elmnt) {
+	    	    /*close all autocomplete lists in the document,
+	    	    except the one passed as an argument:*/
+	    	    var x = document.getElementsByClassName("autocomplete-items");
+	    	    for (var i = 0; i < x.length; i++) {
+	    	      if (elmnt != x[i] && elmnt != inp) {
+	    	        x[i].parentNode.removeChild(x[i]);
+	    	      }
+	    	    }
+	    	  }
+	    	  /*execute a function when someone clicks in the document:*/
+	    	  document.addEventListener("click", function (e) {
+	    	      closeAllLists(e.target);
+	    	  });
+	    	}
+	    	
+	    	//driver autocomplete
+			function driverAutocomplete(inp, arr) {
+	    	  /*the autocomplete function takes two arguments,
+	    	  the text field element and an array of possible autocompleted values:*/
+	    	  var currentFocus;
+	    	  /*execute a function when someone writes in the text field:*/
+	    	  inp.addEventListener("input", function(e) {
+	    	      var a, b, c, d, i, val = this.value;
+	    	      /*close any already open lists of autocompleted values*/
+	    	      closeAllLists();
+	    	      if (!val) { return false;}
+	    	      currentFocus = -1;
+	    	      /*create a DIV element that will contain the items (values):*/
+	    	      a = document.createElement("DIV");
+	    	      a.setAttribute("id", this.id + "autocomplete-list");
+	    	      a.setAttribute("class", "autocomplete-items");
+	    	       
+	    	      c = document.createElement("DIV");
+	    	      c.innerHTML +="<span>Regn. No | </span><span>Chasis No | </span><span>Owner Name | </span>"+
+	    	      		"<span>Ins Upto | </span><span>Tax Up</span>";
+	    	      /*append the DIV element as a child of the autocomplete container:*/
+	    	      //a.innerHTML +=c;
+	    	      this.parentNode.appendChild(a);
+	    	      //a.appendChild(c);
+	    	      /*for each item in the array...*/
+	    	      for (i = 0; i < arr.length; i++) {
+	    	        /*check if the item starts with the same letters as the text field value:*/
+	    	        if (arr[i].dlNo.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+						
+	    	          /*create a DIV element for each matching element:*/
+	    	          b = document.createElement("DIV");
+	    	          /*make the matching letters bold:*/
+	    	          b.innerHTML = "<span><strong>" + arr[i].dlNo.substr(0, val.length) + "</strong>";
+	    	          b.innerHTML += arr[i].dlNo.substr(val.length)+" | </span><span>"+arr[i].nameOfHolder+" | </span><span>"+arr[i].dobStr+" | </span>"+
+	    	          			"<span>"+arr[i].dlValidTillStr+"</span>";
+	    	          /*insert a input field that will hold the current array item's value:*/
+	    	          b.innerHTML += "<input type='hidden' value='" + arr[i].dlNo + "'>";
+	    	          /*execute a function when someone clicks on the item value (DIV element):*/
+	    	          b.addEventListener("click", function(e) {
+	    	              /*insert the value for the autocomplete text field:*/
+	    	              inp.value = this.getElementsByTagName("input")[0].value;
+	    	              /*close the list of autocompleted values,
+	    	              (or any other open lists of autocompleted values:*/
+	    	              closeAllLists();
+	    	          });
+	    	          
+	    	          a.appendChild(b);
+	    	        }
+	    	      }
+	    	  });
+	    	  
+	    	  
+	    	  /*execute a function presses a key on the keyboard:*/
+	    	  inp.addEventListener("keydown", function(e) {
+	    	      var x = document.getElementById(this.id + "autocomplete-list");
+	    	      if (x) x = x.getElementsByTagName("div");
+	    	      if (e.keyCode == 40) {
+	    	        /*If the arrow DOWN key is pressed,
+	    	        increase the currentFocus variable:*/
+	    	        currentFocus++;
+	    	        /*and and make the current item more visible:*/
+	    	        addActive(x);
+	    	      } else if (e.keyCode == 38) { //up
+	    	        /*If the arrow UP key is pressed,
+	    	        decrease the currentFocus variable:*/
+	    	        currentFocus--;
+	    	        /*and and make the current item more visible:*/
+	    	        addActive(x);
+	    	      } else if (e.keyCode == 13) {
+	    	        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+	    	        e.preventDefault();
+	    	        if (currentFocus > -1) {
+	    	          /*and simulate a click on the "active" item:*/
+	    	          if (x) x[currentFocus].click();
+	    	        }
+	    	      }
+	    	  });
+	    	  
+	    	  function addActive(x) {
+	    	    /*a function to classify an item as "active":*/
+	    	    if (!x) return false;
+	    	    /*start by removing the "active" class on all items:*/
+	    	    removeActive(x);
+	    	    if (currentFocus >= x.length) currentFocus = 0;
+	    	    if (currentFocus < 0) currentFocus = (x.length - 1);
+	    	    /*add class "autocomplete-active":*/
+	    	    x[currentFocus].classList.add("autocomplete-active");
+	    	  }
+	    	  function removeActive(x) {
+	    	    /*a function to remove the "active" class from all autocomplete items:*/
+	    	    for (var i = 0; i < x.length; i++) {
+	    	      x[i].classList.remove("autocomplete-active");
+	    	    }
+	    	  }
+	    	  function closeAllLists(elmnt) {
+	    	    /*close all autocomplete lists in the document,
+	    	    except the one passed as an argument:*/
+	    	    var x = document.getElementsByClassName("autocomplete-items");
+	    	    for (var i = 0; i < x.length; i++) {
+	    	      if (elmnt != x[i] && elmnt != inp) {
+	    	        x[i].parentNode.removeChild(x[i]);
+	    	      }
+	    	    }
+	    	  }
+	    	  /*execute a function when someone clicks in the document:*/
+	    	  document.addEventListener("click", function (e) {
+	    	      closeAllLists(e.target);
+	    	  });
+	    	}
+		});
+	</script> 
+</body>
+</html>

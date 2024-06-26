@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="mataheader :: headfragment">
+</head>
+<body>
+
+	<!-- Main Wrapper -->
+	<div class="main-wrapper">
+		<div th:replace="matatopmenu :: topmenufragment"></div>
+		<div th:replace="mataleftmenu :: leftmenu"></div>
+
+		<!-- Page Wrapper -->
+		<div class="page-wrapper">
+
+			<!-- Page Content -->
+			<div class="content container-fluid">
+
+				<!-- Page Header -->
+				<div class="page-header">
+					<div class="row align-items-center">
+						<div class="col">
+							<h3 class="page-heaer">
+								<i class="las la-archive"> <b><span th:text="${title}"></span></b></i>
+							</h3>
+							<br>
+							<ul class="breadcrumb">
+								<li class="breadcrumb-item">Container</li>
+								<li class="breadcrumb-item active"><span th:text="${title}"></span></li>
+							</ul>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-7">
+						<div class="card">
+							<div class="card-body">
+								<form th:object="${container}" method="POST">
+									
+									<input type="hidden" th:field="*{id}">
+									
+									<input type="hidden" th:value="${title}" name="title">
+									
+									<table border="0" cellpadding="10" class="col-md-12">
+										<tr>
+											<td colspan="3">
+												<div class="form-group">
+													<label><b>Shipping Bill (or) BOE Number<font color="red">*</font></b></label> 
+													<input type="text" th:field="*{boeNo}" placeholder="Enter Shipping Bill No." class="form-control"  readonly required>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Container Number</b></label> 
+													<input type="text" th:field="*{containerNo}" placeholder="Enter Container No" class="form-control" readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Type</b></label> 
+													<input type="text" th:field="*{type}" placeholder="Enter Type" class="form-control" readonly>
+												</div>
+											</td>
+											<td>
+											<div class="form-group">
+													<label><b>Seal Number</b></label> 
+													<input type="text" th:field="*{sealNo}" placeholder="Enter Seal No" class="form-control" readonly>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Vessel</b></label> 
+													<input type="text" th:field="*{vessel}" placeholder="Enter Vessel" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Voyage Number</b></label> 
+													<input type="text" th:field="*{voyageNo}" placeholder="Enter Voyage No." class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Operator</b></label> 
+													<input type="text" th:field="*{operator}" placeholder="Enter Operator" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Origin</b></label> 
+													<input type="text" th:field="*{origin}" placeholder="Enter Origin" class="form-control"  readonly>
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Destination</b></label> 
+													<input type="text" th:field="*{destination}" placeholder="Enter Destination" class="form-control"  readonly>
+												</div>
+											</td>
+												<td>
+												<div class="form-group">
+													<label><b>Container Type</b></label> 
+													<input type="text" th:field="*{containerType}" placeholder="Enter Conatiner Type" class="form-control"  readonly>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td colspan="3">
+												<div class="form-group">
+													<label><b>Current Status</b> &nbsp; &nbsp; <img alt="No Image" th:src="*{currentStatus}" width="20px"></label> 
+												</div>
+											</td>
+										</tr>
+									</table>
+										
+									</table>
+									<div class="text-right"  id="back">
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="matafooter :: footer"></div>
+	<script src="/assets/js/app.js"></script> 
+		<script>
+	
+		$(document).ready(function(){
+			
+			$(function(){
+				var page = "[[${pageno}]]";
+				
+				var back = '<a class="btn btn-info" href="/container/'+page+'">Back</a>'
+				 $("#back").html('').append(back);
+				
+			})
+		});
+	</script> 		
+</body>
+</html>

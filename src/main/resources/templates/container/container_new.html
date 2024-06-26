@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="mataheader :: headfragment">
+</head>
+<body>
+
+	<!-- Main Wrapper -->
+	<div class="main-wrapper">
+		<div th:replace="matatopmenu :: topmenufragment"></div>
+		<div th:replace="mataleftmenu :: leftmenu"></div>
+
+		<!-- Page Wrapper -->
+		<div class="page-wrapper">
+
+			<!-- Page Content -->
+			<div class="content container-fluid">
+
+				<!-- Page Header -->
+				<div class="page-header">
+					<div class="row align-items-center">
+						<div class="col">
+							<h3 class="page-heaer">
+								<i class="las la-archive"> <b><span th:text="${title}"></span></b></i>
+							</h3>
+							<br>
+							<ul class="breadcrumb">
+								<li class="breadcrumb-item">Container</li>
+								<li class="breadcrumb-item active"><span th:text="${title}"></span></li>
+							</ul>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-5">
+						<div class="card">
+							<div class="card-body">
+								<form th:action="@{/get/container-details}" th:object="${container}" method="POST">
+									
+									<input type="hidden" th:value="${title}" name="title">
+									
+								<table border="0" cellpadding="10" class="col-md-12">
+										<tr>
+											<td colspan="2" >
+												<div class="form-group">
+													<label><b>Shipping Bill (or) BOE Number<font color="red">*</font></b></label> 
+													<input type="text" th:field="*{boeNo}" placeholder="Enter Shipping Bill No." class="form-control" required>
+												</div>
+											</td>
+										</tr>
+										
+										<tr>
+											<td>
+												<div class="form-group">
+													<label><b>Container Number</b></label> 
+													<input type="text" th:field="*{containerNo}" placeholder="Enter Container No" class="form-control">
+												</div>
+											</td>
+											<td>
+												<div class="form-group">
+													<label><b>Type</b></label> 
+													<select th:field="*{type}" class="form-control">
+											            <option value="">Select Type</option>
+											            <option value="Import">Import</option>
+												        <option value="Export">Export</option>
+											        </select>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td>
+											<div class="form-group">
+													<label><b>Seal Number</b></label> 
+													<input type="text" th:field="*{sealNo}" placeholder="Enter Seal No" class="form-control">
+												</div>
+											</td>
+										
+										</tr>
+										
+									</table>
+									
+									<div class="text-right">
+										<button type="submit" class="btn btn-info">Fetch Details</button>
+									    <a class="btn btn-danger" th:href="@{/container}">Cancel</a>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="matafooter :: footer"></div>
+	<script src="/assets/js/app.js"></script> 
+</body>
+</html>
